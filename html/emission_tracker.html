@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emission Tracker</title>
+    <link rel="stylesheet" type="text/css" href="../css/emission_tracker.css">
+    <script src="../js/ajax.js" defer></script>
+    <script src="../js/emission_tracker.js" defer></script>
+</head>
+
+<body>
+
+<!-- ===== HERO + FORM (full page) ===== -->
+<section class="hero">
+
+    <div class="bg-sky"></div>
+    <div class="stars"></div>
+
+    <div class="glow-orb"></div>
+    <div class="horizon"></div>
+
+    <!-- Forest silhouette -->
+    <div class="trees">
+        <svg viewBox="0 0 1440 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,160 L0,100 L30,60 L60,100 L60,80 L80,40 L100,80 L100,60 L120,20 L140,60 L140,80 L160,40 L180,80 L180,100 L200,70 L220,100 L220,85 L240,50 L260,85 L260,100 L300,80 L340,100 L340,70 L360,30 L380,70 L380,100 L420,80 L460,100 L460,60 L490,20 L520,60 L520,80 L550,50 L580,80 L580,100 L620,70 L660,100 L660,50 L690,10 L720,50 L720,100 L760,80 L800,100 L800,60 L830,25 L860,60 L860,80 L890,45 L920,80 L920,100 L960,75 L1000,100 L1000,55 L1030,15 L1060,55 L1060,100 L1100,70 L1140,100 L1140,65 L1160,30 L1180,65 L1180,100 L1220,80 L1260,100 L1260,75 L1280,40 L1300,75 L1300,100 L1340,80 L1380,100 L1380,70 L1400,35 L1420,70 L1440,100 L1440,160 Z" fill="#0b2e12"/>
+            <path d="M0,160 L0,115 L50,90 L80,115 L80,95 L110,65 L140,95 L140,115 L190,100 L240,115 L240,90 L270,55 L300,90 L300,115 L360,100 L420,115 L420,85 L450,50 L480,85 L480,115 L540,95 L600,115 L600,80 L630,45 L660,80 L660,115 L720,100 L780,115 L780,85 L820,50 L860,85 L860,115 L920,95 L980,115 L980,75 L1010,40 L1040,75 L1040,115 L1100,100 L1160,115 L1160,80 L1190,45 L1220,80 L1220,115 L1280,95 L1340,115 L1340,85 L1370,55 L1400,85 L1440,115 L1440,160 Z" fill="#0d3815"/>
+            <path d="M0,160 L0,130 L60,110 L100,130 L100,115 L130,90 L160,115 L160,130 L220,118 L280,130 L280,108 L310,75 L340,108 L340,130 L400,118 L460,130 L460,105 L500,72 L540,105 L540,130 L600,115 L660,130 L660,100 L700,68 L740,100 L740,130 L800,115 L860,130 L860,105 L900,70 L940,105 L940,130 L1000,118 L1060,130 L1060,108 L1090,78 L1120,108 L1120,130 L1180,115 L1240,130 L1240,100 L1270,65 L1300,100 L1300,130 L1360,118 L1440,130 L1440,160 Z" fill="#112d0e"/>
+        </svg>
+    </div>
+
+    <!-- Leaf particles -->
+    <span class="leaf" style="left:20%;bottom:30%;animation-duration:6s;animation-delay:0s;">🍃</span>
+    <span class="leaf" style="left:45%;bottom:25%;animation-duration:8s;animation-delay:2s;">🌿</span>
+    <span class="leaf" style="left:70%;bottom:35%;animation-duration:7s;animation-delay:4s;">🍃</span>
+    <span class="leaf" style="left:80%;bottom:20%;animation-duration:9s;animation-delay:1s;">🌱</span>
+    <span class="leaf" style="left:10%;bottom:20%;animation-duration:10s;animation-delay:3s;">🌿</span>
+
+    <!-- Hero text + Form together inside the hero -->
+    <div class="hero-inner">
+
+        <!-- Left: title + description -->
+        <div class="hero-text">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                Sustainability Platform
+            </div>
+            <h1>The <span>Emission</span> Tracker</h1>
+            <div class="divider"></div>
+            <p>Track every carbon emission from your supply chain. Choose your materials, enter distances, and get instant CO₂ impact data — all in one place.</p>
+        </div>
+
+        <!-- Right: the form -->
+        <div class="hero-form">
+            <p class="form-title">🌿 Calculate Your Footprint</p>
+            <form class="big-form" id="footprintForm">
+                <div class="field-group">
+                    <label for="material">Choose a material</label>
+                    <select class="big-select" id="material" name="material" multiple size="4"></select>
+
+
+                <div class="field-group">
+                    <label for="quantity">Quantity</label>
+                    <textarea id="quantity" name="message" rows="1"
+                              placeholder="Write the quantity of the material  in kg"></textarea>
+                </div>
+
+
+                <div class="field-group">
+                    <label for="trip">Trip</label>
+                    <textarea id="trip" name="message" rows="1"
+                              placeholder="Write the number of different trip the material made"></textarea>
+                </div>
+
+
+                <div id="form_trip"></div>
+
+                <div id="form_process"></div>
+                <div id="form_elec"></div>
+
+
+                <div id ="industrial_process">
+                    <label for="industrial_process" id="ind_pro">Add industrial process</label>
+                    <input type="checkbox" name="connect" id="indu_process">
+                </div>
+
+
+
+                <div id ="elec_consu">
+                    <label for="elec_cons" id="elec_cons">Add electricity consumption</label>
+                    <input type="checkbox" name="connect" id="elec_c">
+                </div>
+
+                <div id ="more_steps">
+                    <label for="steps" id="steps">Add More Steps</label>
+                    <input type="checkbox" name="connect" id="add_step">
+                </div>
+
+                <button type="submit" id = "button">Submit →</button>
+            </form>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<div class="stats">
+    <div class="stat">
+        <div class="stat-num">500+</div>
+        <div class="stat-label">Companies</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">1.2M t</div>
+        <div class="stat-label">CO₂ Saved</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">98%</div>
+        <div class="stat-label">Accuracy</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">2030</div>
+        <div class="stat-label">Net-Zero Goal</div>
+    </div>
+</div>
+
+</body>
+</html>
