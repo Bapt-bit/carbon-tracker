@@ -42,4 +42,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost/ || exit 1
 
 # Set Apache to run in foreground
-CMD ["apache2-foreground"]
+CMD sh -c "echo '=== MPM CHECK ==='; ls -la /etc/apache2/mods-enabled/ | grep mpm; echo '=== CONFIGTEST ==='; apache2ctl configtest; echo '=== STARTING APACHE ==='; apache2-foreground"
