@@ -1,12 +1,21 @@
 # Multi-stage build for PHP application
 FROM php:8.2-apache AS base
 
-# Enable required PHP extensions and Apache modules
-RUN docker-php-ext-install pdo pdo_mysql mysqli \
-   && a2dismod mpm_event mpm_worker 2>/dev/null; \
-    a2enmod mpm_prefork \
-    && a2enmod rewrite \
-    && a2enmod ssl
+# Enable required PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql mysqli
+
+# Ensure only mpm_prefork is active (required for mod_php)
+RUN a2dismod mpm_event || true
+RUN a2dismod mpm_worker || true
+RUN a2dismod mpm_prefork || true
+RUN a2enmod mpm_prefork
+
+# Enable other required modules
+RUN a2enmod rewrite
+RUN a2enmod ssl
+
+# Diagnostic: confirm which MPM modules are enabled (visible in build logs)
+RUN ls -la /etc/apache2/mods-enabled/ | grep mpm
 
 # Set working directory
 WORKDIR /var/www/html
