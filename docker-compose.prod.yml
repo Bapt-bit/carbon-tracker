@@ -1,0 +1,44 @@
+services:
+  php:
+    image: ghcr.io/bapt-bit/carbon-tracker:main
+    pull_policy: always
+    container_name: carbon-tracker-app
+    ports:
+      - "80:80"
+    volumes:
+      - ./reports:/var/www/html/reports
+    environment:
+      - DB_SERVER=mysql
+      - DB_NAME=carbon_tracker
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - carbon-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: carbon-tracker-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: carbon_tracker
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - carbon-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:
+
+networks:
+  carbon-network:
+    driver: bridge
