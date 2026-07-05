@@ -3,6 +3,7 @@ FROM php:8.2-apache AS base
 
 # Enable required PHP extensions and Apache modules
 RUN docker-php-ext-install pdo pdo_mysql mysqli \
+    a2enmod mpm_prefork \
     && a2enmod rewrite \
     && a2enmod ssl
 
