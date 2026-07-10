@@ -1,43 +1,20 @@
-services:
-  php:
-    restart: unless-stopped
-    image: ghcr.io/bapt-bit/carbon-tracker:main
-    pull_policy: always
-    container_name: carbon-tracker-app
-    ports:
-      - "80:80"
-    volumes:
-      - ./reports:/var/www/html/reports
-    env_file:
-      - .env
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - carbon-network
-
-  mysql:
-    restart: unless-stopped
-    image: mysql:8.0
-    container_name: carbon-tracker-db
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
-    networks:
-      - carbon-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 5s
-      retries: 5
-
-volumes:
-  mysql_data:
-
-networks:
-  carbon-network:
-    driver: bridge
+mysql:
+  restart: unless-stopped
+  image: mysql:8.0
+  container_name: carbon-tracker-db
+  env_file:
+    - .env
+  environment:
+    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    MYSQL_DATABASE: ${DB_NAME}
+    MYSQL_USER: ${DB_USER}
+    MYSQL_PASSWORD: ${DB_PASSWORD}
+  volumes:
+    - mysql_data:/var/lib/mysql
+    - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+  networks:
+    - carbon-network
+  healthcheck:
+    test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    timeout: 5s
+    retries: 5
