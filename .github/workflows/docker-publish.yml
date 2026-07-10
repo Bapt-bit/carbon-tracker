@@ -1,5 +1,6 @@
 services:
   php:
+    restart: unless-stopped
     image: ghcr.io/bapt-bit/carbon-tracker:main
     pull_policy: always
     container_name: carbon-tracker-app
@@ -16,6 +17,7 @@ services:
       - carbon-network
 
   mysql:
+    restart: unless-stopped
     image: mysql:8.0
     container_name: carbon-tracker-db
     environment:
