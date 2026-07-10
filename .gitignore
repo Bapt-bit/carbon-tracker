@@ -1,14 +1,11 @@
-# Docker
-.dockerignore
-docker-compose.yml
-docker-compose.override.yml
-.docker/
-.dockerbuild/
+# Secrets — jamais commités
+.env
+.env.local
+.env.*.local
 
-# Container artifacts
-*.tar
-*.tar.gz
-*.tar.xz
+# Rapports générés (contenu dynamique, pas du code)
+reports/*.pdf
+!reports/.gitkeep
 
 # IDE
 .idea/
@@ -16,47 +13,18 @@ docker-compose.override.yml
 *.swp
 *.swo
 *~
-.DS_Store
-*.sublime-project
-*.sublime-workspace
-
-# Environment files (NEVER commit secrets)
-.env
-.env.local
-.env.*.local
-
-# Project-specific
-reports/
-!reports/.gitkeep
-debug.txt
-carbon_tracker
-
-# Node (if used in frontend)
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Build outputs
-dist/
-build/
-*.log
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-mysql_data/
-
 # PHP
 vendor/
-composer.lock
 
-# Miscellaneous
-.venv
-__pycache__/
-*.pyc
+# Logs et debug
+*.log
+debug.txt
+.Rhistory
+
+# Node (si utilisé)
+node_modules/
