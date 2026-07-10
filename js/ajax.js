@@ -8,6 +8,9 @@
 // \param url The url of the request.
 // \param callback The callback to call when the request success.
 // \param data The data associated with the request.
+
+//anti-bot filter
+const API_KEY = 'c4380e61512547e5947ab2f8c0792051ea9be478db88f44e43c6e6b4bc1a5931';
 function ajaxRequest(type, url, callback, data = null)
 {
     // Create XML HTTP request.
@@ -17,6 +20,7 @@ function ajaxRequest(type, url, callback, data = null)
     }
     xhr.open(type, url);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.setRequestHeader('X-API-Key', API_KEY);
 
     // Add response handler.
     xhr.onload = () =>
