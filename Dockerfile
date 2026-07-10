@@ -37,6 +37,13 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache to serve from the correct directory
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html|g' /etc/apache2/sites-available/000-default.conf
 
+RUN echo '<FilesMatch "^\.">\n\
+    Require all denied\n\
+</FilesMatch>\n\
+<FilesMatch "\.(env|sql|md|yml|yaml|txt)$">\n\
+    Require all denied\n\
+</FilesMatch>' >> /etc/apache2/apache2.conf
+
 # Expose port
 EXPOSE 80
 
