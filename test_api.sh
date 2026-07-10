@@ -1,13 +1,4 @@
-#!/bin/bash
-# ==============================================================================
-# test_api.sh — Tests automatisés pour l'API carbon-tracker (api.php)
-# ==============================================================================
-# Usage :
-#   1. Lancez d'abord votre app : docker compose up -d
-#   2. Adaptez BASE_URL et API_KEY ci-dessous (ou passez-les en variables d'env)
-#   3. Rendez le script exécutable : chmod +x test_api.sh
-#   4. Lancez : ./test_api.sh
-# ==============================================================================
+
 
 BASE_URL="${BASE_URL:-http://localhost:80}"
 API_KEY="${API_KEY:-your-real-api-key-here}"
