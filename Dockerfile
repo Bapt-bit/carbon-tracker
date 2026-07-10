@@ -21,7 +21,10 @@ RUN ls -la /etc/apache2/mods-enabled/ | grep mpm
 WORKDIR /var/www/html
 
 # Copy application files
-COPY . .
+COPY php/ /var/www/html/php/
+COPY html/ /var/www/html/html/
+COPY css/ /var/www/html/css/
+COPY js/ /var/www/html/js/
 
 # Create reports directory if it doesn't exist
 RUN mkdir -p /var/www/html/reports
