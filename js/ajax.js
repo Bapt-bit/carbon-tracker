@@ -13,7 +13,6 @@
 const API_KEY = 'c4380e61512547e5947ab2f8c0792051ea9be478db88f44e43c6e6b4bc1a5931';
 function ajaxRequest(type, url, callback, data = null)
 {
-    // Create XML HTTP request.
     let xhr = new XMLHttpRequest();
     if (type == 'GET' && data != null) {
         url += '?' + data;
@@ -22,25 +21,30 @@ function ajaxRequest(type, url, callback, data = null)
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.setRequestHeader('X-API-Key', API_KEY);
 
-    // Add response handler.
     xhr.onload = () =>
     {
         switch (xhr.status)
         {
             case 200:
             case 201:
-                console.log(xhr.responseText);
-                callback(JSON.parse(xhr.responseText));
+                try {
+                    callback(JSON.parse(xhr.responseText));
+                } catch (e) {
+                    console.error('Invalid JSON response:', e);
+                    displayErrors(500);
+                }
                 break;
             default:
                 displayErrors(xhr.status);
         }
     };
 
-    // Send XML HTTP request.
+    xhr.onerror = () => {
+        displayErrors(0); // erreur réseau / CORS
+    };
+
     xhr.send(data);
 }
-
 //------------------------------------------------------------------------------
 //--- displayErrors ------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -48,13 +52,14 @@ function ajaxRequest(type, url, callback, data = null)
 // \param errorCode The error code (HTTP status for example).
 function displayErrors(errorCode)
 {
-    let messages = {
-        400: 'Requête incorrecte',
-        401: 'Authentifiez vous',
-        404: 'Page non trouvée',
-        500: 'Erreur interne du serveur',
-        503: 'Service indisponible'
-    };
+   let messages = {
+    0: 'Erreur réseau, vérifiez votre connexion',
+    400: 'Requête incorrecte',
+    401: 'Authentifiez vous',
+    404: 'Page non trouvée',
+    500: 'Erreur interne du serveur',
+    503: 'Service indisponible'
+};
 
     // Display error.
     if (messages[errorCode] != undefined)
