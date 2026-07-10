@@ -1,10 +1,28 @@
 <?php
+
 require_once("bdd_constants.php");
 require_once("fpdf/fpdf.php");
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-// cd /mnt/c/Users/Utilisateur/IdeaProjects/carbon_tracker
-//php -S localhost:63342
+
+if (APP_ENV === 'development') {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    error_reporting(E_ALL); 
+}
+
+function checkApiKey() {
+    $expectedKey = getenv('API_KEY');
+    $providedKey = $_SERVER['HTTP_X_API_KEY'] ?? '';
+
+    if (empty($expectedKey) || !hash_equals($expectedKey, $providedKey)) {
+        header('HTTP/1.1 401 Unauthorized');
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Unauthorized']);
+        exit;
+    }
+}
+checkApiKey();
 function dbConnect()
 {
     try
@@ -25,7 +43,7 @@ function dbConnect()
     }
     return $db;
 }
-dbConnect();
+
 
 function dbGetMaterials($db){
 
@@ -346,7 +364,21 @@ function validateNumeric($value): float
 
 
 $db = dbConnect();
+
+
+if (!isset($_GET['request'])) {
+    header('HTTP/1.1 400 Bad Request');
+    echo json_encode(['error' => 'Missing request parameter']);
+    exit;
+}
+$allowedRequests = ['raw_material', 'trip', 'electricity', 'process', 'save_steps'];
 $request = $_GET['request'];
+
+if (!in_array($request, $allowedRequests, true)) {
+    header('HTTP/1.1 400 Bad Request');
+    echo json_encode(['error' => 'Invalid request type']);
+    exit;
+}
 
 //var_dump($request);
 
@@ -438,4 +470,3 @@ if (isset($_GET['request']) && $_GET['request'] == 'save_steps') {
 }
 
 ?>
-
