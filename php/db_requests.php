@@ -200,6 +200,25 @@ function dbGetTransportInfo($db, $vehicleType){
     return $result;
 }
 
+function validateStepArrays(array $steps): void
+{
+    $arrayKeys = ['material', 'process', 'country'];
+    foreach ($steps as $step) {
+        foreach ($step as $key => $value) {
+            $isArrayKey = in_array($key, $arrayKeys, true) || strpos($key, 'transport') === 0;
+            if ($isArrayKey && $value !== null) {
+                if (!is_array($value)) {
+                    throw new InvalidArgumentException("Field '$key' must be an array");
+                }
+                foreach ($value as $item) {
+                    if (!is_string($item) && !is_numeric($item)) {
+                        throw new InvalidArgumentException("Invalid item type in '$key'");
+                    }
+                }
+            }
+        }
+    }
+}
 
 function enrichSteps($db, array $steps): array
 {
@@ -433,40 +452,58 @@ if ($request == 'process'){
 }
 
 if (isset($_GET['request']) && $_GET['request'] == 'save_steps') {
-    if (!isset($_POST['data'])) {
-        header('HTTP/1.1 400 Bad Request');
-        echo json_encode(['error' => 'Missing data']);
-        exit;
-    }
-
-    $steps = json_decode($_POST['data'], true);
-
-    if (json_last_error() !== JSON_ERROR_NONE || !is_array($steps)) {
-        header('HTTP/1.1 400 Bad Request');
-        echo json_encode(['error' => 'Invalid JSON payload']);
-        exit;
-    }
-
-    $result = enrichSteps($db, $steps);
-
-    $grandTotal = 0;
     try {
+        if (!isset($_POST['data'])) {
+            header('HTTP/1.1 400 Bad Request');
+            echo json_encode(['error' => 'Missing data']);
+            exit;
+        }
+
+        if (strlen($_POST['data']) > 50000) {
+            header('HTTP/1.1 413 Payload Too Large');
+            echo json_encode(['error' => 'Payload too large']);
+            exit;
+        }
+
+        $steps = json_decode($_POST['data'], true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($steps)) {
+            header('HTTP/1.1 400 Bad Request');
+            echo json_encode(['error' => 'Invalid JSON payload']);
+            exit;
+        }
+
+        if (count($steps) > 50) {
+            header('HTTP/1.1 400 Bad Request');
+            echo json_encode(['error' => 'Too many steps']);
+            exit;
+        }
+
+        
+       validateStepArrays($steps);
+        $result = enrichSteps($db, $steps);
+
+        $grandTotal = 0;
         foreach ($result as &$step) {
             $step['emissions'] = calculateStepEmission($step);
             $grandTotal += $step['emissions']['total'];
         }
         unset($step);
+
+        $reportPath = generateReport($result, $grandTotal);
+
+        header('Content-Type: application/json');
+        echo json_encode(['data' => $result, 'report' => $reportPath]);
+        exit;
+
     } catch (InvalidArgumentException $e) {
         header('HTTP/1.1 400 Bad Request');
         echo json_encode(['error' => $e->getMessage()]);
         exit;
+    } catch (\Throwable $e) {
+        error_log('save_steps unexpected error: ' . $e->getMessage());
+        header('HTTP/1.1 500 Internal Server Error');
+        echo json_encode(['error' => 'Internal server error']);
+        exit;
     }
-
-    $reportPath = generateReport($result, $grandTotal);
-
-    header('Content-Type: application/json');
-    echo json_encode(['data' => $result, 'report' => $reportPath]);
-    exit;
 }
-
-?>
