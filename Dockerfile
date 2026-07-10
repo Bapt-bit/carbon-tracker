@@ -26,7 +26,10 @@ RUN ls -la /etc/apache2/mods-enabled/ | grep mpm
 WORKDIR /var/www/html
 
 # Copy application files
-COPY . .
+COPY php/ /var/www/html/php/
+COPY html/ /var/www/html/html/
+COPY css/ /var/www/html/css/
+COPY js/ /var/www/html/js/
 
 # Create reports directory if it doesn't exist
 RUN mkdir -p /var/www/html/reports
@@ -38,6 +41,13 @@ RUN chown -R www-data:www-data /var/www/html \
 
 # Configure Apache to serve from the correct directory
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html|g' /etc/apache2/sites-available/000-default.conf
+
+RUN echo '<FilesMatch "^\.">\n\
+    Require all denied\n\
+</FilesMatch>\n\
+<FilesMatch "\.(env|sql|md|yml|yaml|txt)$">\n\
+    Require all denied\n\
+</FilesMatch>' >> /etc/apache2/apache2.conf
 
 # Expose port
 EXPOSE 80

@@ -160,7 +160,7 @@ function getdatabase_data(){
 function get_trip_form(){
     setTimeout(() => {
         ajaxRequest('GET','/php/db_requests.php?request=trip',form_trip);
-    }, "1000");
+    }, 1000);
 
 }
 

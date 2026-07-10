@@ -1,5 +1,5 @@
-<?php
 
+<?php
 require_once("bdd_constants.php");
 require_once("fpdf/fpdf.php");
 
