@@ -7,34 +7,42 @@ services:
       - "80:80"
     volumes:
       - ./reports:/var/www/html/reports
+    env_file:
+      - .env
     environment:
       - DB_SERVER=mysql
-      - DB_NAME=carbon_tracker
-      - DB_USER=root
-      - DB_PASSWORD=rootpassword
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - carbon-network
+    restart: unless-stopped
 
   mysql:
     image: mysql:8.0
     container_name: carbon-tracker-db
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: carbon_tracker
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
-    ports:
-      - "3306:3306"
+    # Pas de "ports:" ici -> MySQL n'est joignable que par les autres
+    # services du réseau "carbon-network", jamais depuis l'extérieur.
     networks:
       - carbon-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
 volumes:
   mysql_data:
