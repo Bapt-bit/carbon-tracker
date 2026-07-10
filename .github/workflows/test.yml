@@ -1,0 +1,69 @@
+name: API Tests
+
+# Déclenche le workflow à chaque push et à chaque pull request sur main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Variables d'environnement issues des secrets GitHub
+    # (à configurer dans : Settings > Secrets and variables > Actions)
+    env:
+      DB_SERVER: mysql
+      DB_NAME: carbon_tracker
+      DB_USER: carbon_app
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      API_KEY: ${{ secrets.API_KEY }}
+      APP_ENV: production
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Créer le fichier .env pour docker-compose
+        run: |
+          cat <<EOF > .env
+          DB_SERVER=mysql
+          DB_NAME=carbon_tracker
+          DB_USER=carbon_app
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          API_KEY=${{ secrets.API_KEY }}
+          APP_ENV=production
+          EOF
+
+      - name: Démarrer les conteneurs
+        run: docker compose up -d --build
+
+      - name: Attendre que les services soient prêts
+        run: |
+          echo "Attente du démarrage de MySQL et PHP..."
+          for i in $(seq 1 30); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' carbon-tracker-db 2>/dev/null || echo "starting")
+            if [ "$status" == "healthy" ]; then
+              echo "MySQL est prêt."
+              break
+            fi
+            echo "En attente... ($i/30)"
+            sleep 2
+          done
+          sleep 5
+
+      - name: Afficher les logs en cas de doute (debug)
+        if: always()
+        run: docker compose logs --tail=50
+
+      - name: Rendre le script de test exécutable
+        run: chmod +x tests/test_api.sh
+
+      - name: Lancer les tests API
+        run: |
+          BASE_URL=http://localhost:80 API_KEY=${{ secrets.API_KEY }} ./tests/test_api.sh
+
+      - name: Arrêter les conteneurs (toujours exécuté, même si les tests échouent)
+        if: always()
+        run: docker compose down -v
